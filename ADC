@@ -1,0 +1,42 @@
+#define _XTAL_FREQ 4000000
+#define __delay_us(x) _delay((unsigned long)((x)*(_XTAL_FREQ/4000000.0)))
+
+// Incluir las librerías
+#include <xc.h>
+#include "adc.h"
+
+// Configuración del ADC
+void ADC_CONF(int frec){
+    ADCON0bits.ADON = 1; 
+    ADCON0bits.CHS = 0; 
+    ADCON1bits.ADFM = 0;
+    ADCON1bits.VCFG0 = 0; 
+    ADCON1bits.VCFG1 = 0;
+    ADCON0bits.GO = 0; 
+    
+    switch(frec){
+        case 1:
+            ADCON0bits.ADCS = 0B00; // Fosc/2 
+            break;
+        case 4:
+            ADCON0bits.ADCS = 0B01; // Fosc/8
+            break;
+        case 8:
+            ADCON0bits.ADCS = 0B10; // Fosc/32 
+            break;
+    }
+}
+
+void ADC_IF(){
+    if (ADCON0bits.GO == 0){ 
+            if(ADCON0bits.CHS == 0){ 
+                ADCON0bits.CHS = 1;
+            }
+            else{
+                ADCON0bits.CHS = 0; 
+            }
+            __delay_us(50); 
+            ADCON0bits.GO = 1; 
+        }
+}
+
